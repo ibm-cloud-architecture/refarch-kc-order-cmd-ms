@@ -7,6 +7,8 @@ import java.util.concurrent.CompletableFuture;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.TransactionScoped;
+import javax.transaction.Transactional;
 
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
@@ -32,6 +34,7 @@ public class OrderService {
 	}
 
 
+    @Transactional
     public ShippingOrder createOrder(ShippingOrder order) {
         if (order.orderID == null) {
             order.orderID = UUID.randomUUID().toString();
@@ -50,5 +53,13 @@ public class OrderService {
 
     public ShippingOrder getOrderById(String id) {
         return repository.findById(id);
+    }
+
+
+    @Transactional
+    public void cancelOrder(ShippingOrder order) {
+        order.status = ShippingOrder.CANCELLED_STATUS;
+        producer.sendOrderUpdateEventFrom(order);
+        repository.updateOrder(order);
     }
 }

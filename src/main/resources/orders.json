@@ -5,7 +5,9 @@
         "quantity": 10,
         "destinationAddress": {"street": "12 main street", "city" : "san francisco", 
             "country": "USA", "state": "CA", "zipcode": "92000"},
-        "status" : "pending",
+        "status" : "assigned",
+        "containerID": "C21",
+        "voyageID" : "V020",
         "creationDate": "2021/12/06"
     },
     { "orderID" : "Order02",
@@ -14,7 +16,9 @@
          "quantity": 7,
          "destinationAddress": {"street": "12 blue horizon avenue", "city" : "san francisco", 
              "country": "USA", "state": "CA", "zipcode": "92000"},
-         "status" : "pending",
+         "status" : "assigned",
+         "containerID": "C23",
+         "voyageID" : "V021",
          "creationDate": "2021/12/06"
      }
 ]

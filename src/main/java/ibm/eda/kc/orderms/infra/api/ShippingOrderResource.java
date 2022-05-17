@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -59,6 +60,18 @@ public class ShippingOrderResource {
             throw new WebApplicationException("Order with id of " + id + " does not exist.", 404);
      
         }
+        return order;
+    }
+
+    @PUT
+    @Path("/cancel/{id}")
+    public ShippingOrder cancelOrderByID(@PathParam("id") String id) {
+        ShippingOrder order = serv.getOrderById(id);
+        if (order == null) {
+            throw new WebApplicationException("Order with id of " + id + " does not exist.", 404);
+     
+        }
+        serv.cancelOrder(order);
         return order;
     }
 }

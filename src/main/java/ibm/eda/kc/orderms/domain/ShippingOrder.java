@@ -10,6 +10,7 @@ public class ShippingOrder {
 
     public static final String PENDING_STATUS = "pending";
     public static final String CANCELLED_STATUS = "cancelled";
+    public static final String ONHOLD_STATUS = "onHold";
     public static final String ASSIGNED_STATUS = "assigned";
     public static final String REJECTED_STATUS = "rejected";
     public static final String SPOILT_STATUS = "spoilt";

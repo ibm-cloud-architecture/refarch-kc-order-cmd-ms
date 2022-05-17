@@ -1,6 +1,7 @@
 package ibm.eda.kc.orderms.infra.events.order;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 
@@ -13,6 +14,7 @@ import io.smallrye.reactive.messaging.kafka.api.OutgoingKafkaRecordMetadata;
 
 @ApplicationScoped
 public class OrderEventProducer {
+    Logger logger = Logger.getLogger(OrderEventProducer.class.getName());
     
     @Channel("orders")
 	public Emitter<OrderEvent> eventProducer;
@@ -28,6 +30,7 @@ public class OrderEventProducer {
     public void sendOrderUpdateEventFrom(ShippingOrder order) {
         OrderEvent oe = createOrderEvent(order);
         oe.type = OrderEvent.ORDER_UPDATED_TYPE;
+        oe.status = order.status;
         OrderUpdatedEvent oce = new OrderUpdatedEvent();
         oce.reeferIDs = order.containerID;
         oce.voyageID = order.voyageID;
@@ -37,6 +40,7 @@ public class OrderEventProducer {
 
 
     public void sendOrder(String key, OrderEvent orderEvent){
+        logger.info("key " + key + " order event " + orderEvent.orderID + " ts: " + orderEvent.timestampMillis);
 		eventProducer.send(Message.of(orderEvent).addMetadata(OutgoingKafkaRecordMetadata.<String>builder()
 			.withKey(key).build())
 			.withAck( () -> {

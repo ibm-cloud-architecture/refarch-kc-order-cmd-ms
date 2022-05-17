@@ -12,6 +12,7 @@ import org.eclipse.microprofile.reactive.messaging.Message;
 import ibm.eda.kc.orderms.domain.ShippingOrder;
 import ibm.eda.kc.orderms.infra.events.order.OrderEventProducer;
 import ibm.eda.kc.orderms.infra.repo.OrderRepository;
+import io.quarkus.scheduler.Scheduled;
 
 /**
  * Listen to the reefer topic and processes event from reefer service:
@@ -61,6 +62,19 @@ public class ReeferAgent {
         }
         
         return re;
+    }
+
+    @Scheduled(cron = "{reefer.cron.expr}")
+    void cronJobForReeferAnswerNotReceived() {
+        // badly done - brute force as of now
+        for(ShippingOrder o : repo.getAll()) {
+            if (o.status.equals(ShippingOrder.PENDING_STATUS)) {
+                if (o.voyageID != null) {
+                    o.status = ShippingOrder.ONHOLD_STATUS;
+                    producer.sendOrderUpdateEventFrom(o);
+                }
+            } 
+        }
     }
  
 }

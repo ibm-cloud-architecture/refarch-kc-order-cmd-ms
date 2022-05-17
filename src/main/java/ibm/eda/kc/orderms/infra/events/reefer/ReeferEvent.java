@@ -9,5 +9,5 @@ public class ReeferEvent extends EventBase {
 	public String reeferID;
     public ReeferVariablePayload payload;
 
-
+    public ReeferEvent(){}
 }

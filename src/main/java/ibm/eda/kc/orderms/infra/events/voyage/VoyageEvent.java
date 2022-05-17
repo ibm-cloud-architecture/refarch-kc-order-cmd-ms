@@ -10,5 +10,5 @@ public class VoyageEvent extends EventBase {
     public String voyageID;
     public VoyageVariablePayload payload;
 
-   
+   public VoyageEvent(){} 
 }
