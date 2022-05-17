@@ -17,17 +17,20 @@ public class OrderEventProducer {
     @Channel("orders")
 	public Emitter<OrderEvent> eventProducer;
 
-    public void sendOrderCreationFrom(ShippingOrder order) {
-
-        OrderEvent oe = new OrderEvent();
-        oe.customerID = order.customerID;
-        oe.orderID = order.orderID;
-        oe.productID = order.productID;
-        oe.quantity = order.quantity;
+    public void sendOrderCreatedEventFrom(ShippingOrder order) {
+        OrderEvent oe = createOrderEvent(order);
         oe.type = OrderEvent.ORDER_CREATED_TYPE;
-        OrderCreatedEvent oce = new OrderCreatedEvent();
-        oce.pickupCity = order.getPickupAddress().getCity();
-        oce.destinationCity = order.getDestinationAddress().getCity();
+        OrderCreatedEvent oce = new OrderCreatedEvent(order.getDestinationAddress().getCity(),order.getPickupAddress().getCity());
+		oe.payload = oce;
+        sendOrder(oe.orderID,oe);
+    }
+
+    public void sendOrderUpdateEventFrom(ShippingOrder order) {
+        OrderEvent oe = createOrderEvent(order);
+        oe.type = OrderEvent.ORDER_UPDATED_TYPE;
+        OrderUpdatedEvent oce = new OrderUpdatedEvent();
+        oce.reeferIDs = order.containerID;
+        oce.voyageID = order.voyageID;
 		oe.payload = oce;
         sendOrder(oe.orderID,oe);
     }
@@ -45,4 +48,14 @@ public class OrderEventProducer {
 			}));
 	}
 
+    private OrderEvent createOrderEvent(ShippingOrder order){
+        OrderEvent oe = new OrderEvent();
+        oe.customerID = order.customerID;
+        oe.orderID = order.orderID;
+        oe.productID = order.productID;
+        oe.quantity = order.quantity;
+        oe.status = order.status;
+        return oe;
+
+    }
 }

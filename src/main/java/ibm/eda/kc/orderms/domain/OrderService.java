@@ -39,10 +39,16 @@ public class OrderService {
         if (order.creationDate == null) {
 			order.creationDate = LocalDate.now().toString();
 		}
+        order.status = ShippingOrder.PENDING_STATUS;
 		order.updateDate= order.creationDate;
         repository.addOrder(order);
-		producer.sendOrderCreationFrom(order);
+		producer.sendOrderCreatedEventFrom(order);
         
         return order;
+    }
+
+
+    public ShippingOrder getOrderById(String id) {
+        return repository.findById(id);
     }
 }

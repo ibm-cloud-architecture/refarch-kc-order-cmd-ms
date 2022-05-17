@@ -8,7 +8,9 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -47,5 +49,16 @@ public class ShippingOrderResource {
     @GET
     public List<ShippingOrder> getAll() {
         return serv.getAllOrders();
+    }
+
+    @GET
+    @Path("/{id}")
+    public ShippingOrder getOrderByID(@PathParam("id") String id) {
+        ShippingOrder order = serv.getOrderById(id);
+        if (order == null) {
+            throw new WebApplicationException("Order with id of " + id + " does not exist.", 404);
+     
+        }
+        return order;
     }
 }

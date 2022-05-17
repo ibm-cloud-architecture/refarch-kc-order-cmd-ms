@@ -3,6 +3,7 @@ package ibm.eda.kc.orderms.infra.events.order;
 import java.util.Date;
 
 import ibm.eda.kc.orderms.infra.events.EventBase;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 
 /**
  * Order event for the state change of a shipping order
@@ -12,6 +13,7 @@ import ibm.eda.kc.orderms.infra.events.EventBase;
  * @author jeromeboyer
  *
  */
+@RegisterForReflection
 public class OrderEvent extends EventBase {
     public static final String ORDER_CREATED_TYPE = "OrderCreated";
     public static final String ORDER_UPDATED_TYPE = "OrderUpdated";
@@ -33,9 +35,9 @@ public class OrderEvent extends EventBase {
         this.payload = payload;
     }
 
-    public OrderEvent( OrderVariablePayload payload) {
+    public OrderEvent( String aType, OrderVariablePayload payload) {
         this.payload = payload;
-        this.type = ORDER_CREATED_TYPE;
+        this.type = aType;
         this.timestampMillis = new Date().getTime();
         this.version = DEFAULT_VERSION;
     }
