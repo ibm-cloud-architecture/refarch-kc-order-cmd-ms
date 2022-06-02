@@ -1,0 +1,20 @@
+{
+    "orderID": "GoodOrder01",
+    "customerID": "Customer01",
+    "productID": "P01",
+    "quantity": 10,
+    "destinationAddress": {
+        "street": "1st horizon road",
+        "city": "Shanghai",
+        "country": "CH",
+        "state": "S1",
+        "zipcode": "95051"
+    },
+    "pickupAddress": {
+        "street": "1st main street",
+        "city": "San Francisco",
+        "country": "USA",
+        "state": "CA",
+        "zipcode": "95051"
+    }
+}

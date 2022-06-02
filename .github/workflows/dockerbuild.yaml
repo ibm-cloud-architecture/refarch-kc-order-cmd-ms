@@ -1,0 +1,82 @@
+name: Build & push images for 'order manager demo'
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'docs/**'
+      - 'scripts/**'
+      - 'README.md'
+jobs:
+  validate-docker-secrets:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Validate docker registry secrets are defined
+      id: validate-docker-secrets
+      run: |
+        echo "Validating docker registry secrets are defined on the repository"
+
+        FAIL=false
+
+        validate_secret(){
+          FIELD=$1
+          VALUE=$2
+
+          if [ -z "${VALUE}" ]; then
+            echo "The secret ${FIELD} needs to be set on this repository."
+            FAIL=true
+          else
+            echo "The secret ${FIELD} is set on this repository."
+          fi
+        }
+
+        validate_secret DOCKER_USERNAME ${DOCKER_USERNAME}
+        validate_secret DOCKER_PASSWORD ${DOCKER_PASSWORD}
+        validate_secret DOCKER_REPOSITORY ${DOCKER_REPOSITORY}
+        validate_secret DOCKER_IMAGE_NAME ${DOCKER_IMAGE_NAME}
+        validate_secret DOCKER_REGISTRY ${DOCKER_REGISTRY}
+        
+        if [ "${FAIL}" = "true" ]; then
+          exit 1
+        fi
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        DOCKER_REPOSITORY: ${{ secrets.DOCKER_REPOSITORY }}
+        DOCKER_IMAGE_NAME: ${{ secrets.DOCKER_IMAGE_NAME }}
+        DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+  build-docker-images:
+    needs:
+      validate-docker-secrets
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Bump version and push tag
+      id: bump-version-action
+      uses: ibm-cloud-architecture/github-tag-action@master
+      env:
+        DEFAULT_BUMP: patch
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build the app docker image
+      id: build-container-image
+      run: |
+        IMAGE_NAME="${DOCKER_REG}/${DOCKER_R}/${DOCKER_I}"
+        docker login -u ${DOCKER_U} -p ${DOCKER_P} ${DOCKER_REG}
+        if [ -z "$IMAGE_TAG" ]; then
+          IMAGE_TAG=latest
+        fi
+        echo "Build and push the docker image"
+        cd ${WORKDIR}
+        mvn package -DskipTests
+        docker build -f ${DOCKERFILE} -t ${IMAGE_NAME}:${IMAGE_TAG} . 
+        docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
+        docker push ${IMAGE_NAME}
+      env:
+        DOCKER_U: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_P: ${{ secrets.DOCKER_PASSWORD }}
+        DOCKER_R: ${{ secrets.DOCKER_REPOSITORY }}
+        DOCKER_I: ${{ secrets.DOCKER_IMAGE_NAME }}
+        DOCKER_REG: ${{ secrets.DOCKER_REGISTRY }}
+        WORKDIR: .
+        DOCKERFILE: src/main/docker/Dockerfile.jvm
+        IMAGE_TAG: ${{ steps.bump-version-action.outputs.new_tag }}
